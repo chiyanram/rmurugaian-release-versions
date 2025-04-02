@@ -1,0 +1,20 @@
+name: Deploy to Stage
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Stage
+        run: echo "Deploying projectA to stage"
+
+      - name: Update Stage Version
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: update-version.yml
+          repo: your-org/project-release-versions
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "project_name": "projectA", "environment": "stage", "new_version": "1.2.3" }'

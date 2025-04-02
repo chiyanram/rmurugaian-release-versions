@@ -1,0 +1,24 @@
+name: Deploy to Prod
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Stage Version
+        run: |
+          VERSION=$(curl -s https://raw.githubusercontent.com/your-org/project-release-versions/main/versions.json | jq -r '.projectA.stage')
+          echo "Deploying version $VERSION to prod"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Deploy to Prod
+        run: echo "Deploying projectA to production version $VERSION"
+
+      - name: Update Prod Version
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: update-version.yml
+          repo: your-org/project-release-versions
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "project_name": "projectA", "environment": "prod", "new_version": "${{ env.VERSION }}" }'

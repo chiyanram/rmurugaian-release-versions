@@ -1,0 +1,45 @@
+name: Update Project Version (PR-based)
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Project Name'
+        required: true
+      environment:
+        description: 'Environment (stage or prod)'
+        required: true
+      new_version:
+        description: 'New Release Version'
+        required: true
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create new branch
+        run: |
+          BRANCH_NAME="update-${{ github.event.inputs.project_name }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.new_version }}"
+          git checkout -b $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Update version in JSON file
+        run: |
+          jq --arg project "${{ github.event.inputs.project_name }}" \
+             --arg env "${{ github.event.inputs.environment }}" \
+             --arg version "${{ github.event.inputs.new_version }}" \
+             '.[$project][$env] = $version' versions.json > tmp.json && mv tmp.json versions.json
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: Updated ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}
+          title: "Update ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}"
+          body: "This PR updates the version of `${{ github.event.inputs.project_name }}` in `${{ github.event.inputs.environment }}` to `${{ github.event.inputs.new_version }}`."
+          delete-branch: 'true'
+          branch: ${{ env.BRANCH_NAME }}
+          labels: |
+            report
+            automated pr
