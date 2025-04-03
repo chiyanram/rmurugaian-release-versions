@@ -5,7 +5,7 @@
   },
   "projectB": {
     "stage": "2.5.1",
-    "prod": "2.4.3"
+    "prod": "3.0.0"
   },
   "projectC": {
     "stage": "3.0.0",
