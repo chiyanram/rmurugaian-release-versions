@@ -22,7 +22,6 @@ jobs:
       - name: Create new branch
         run: |
           BRANCH_NAME="update-${{ github.event.inputs.project_name }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.new_version }}"
-          git checkout -b $BRANCH_NAME
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Update version in JSON file
