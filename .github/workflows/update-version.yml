@@ -35,6 +35,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
+          token: '${{ secrets.GH_TOKEN }}'
           commit-message: Updated ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}
           title: "Update ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}"
           body: "This PR updates the version of `${{ github.event.inputs.project_name }}` in `${{ github.event.inputs.environment }}` to `${{ github.event.inputs.new_version }}`."
