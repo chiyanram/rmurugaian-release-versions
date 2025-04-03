@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on tags like v1.2.3
+
+jobs:
+  deploy-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Tag Name
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Deploy to Stage
+        run: echo "Deploying projectA to stage with version $VERSION"
+
+      - name: Update Stage Version
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: update-version.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "project_name": "projectA", "environment": "stage", "new_version": "${{ env.VERSION }}" }'
+          repo: chiyanram/project-release-versions
+
+  deploy-prod:
+    needs: deploy-stage  # Ensures stage deployment is completed first
+    runs-on: ubuntu-latest
+    environment: production  # Enables GitHub's manual approval
+    steps:
+      - name: Extract Tag Name
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Deploy to Prod
+        run: echo "Deploying projectA to prod with version $VERSION"
+
+      - name: Update Prod Version
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: update-version.yml
+          repo: chiyanram/project-release-versions
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "project_name": "projectA", "environment": "prod", "new_version": "${{ env.VERSION }}" }'

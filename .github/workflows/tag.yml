@@ -1,0 +1,41 @@
+name: Update Version Snapshot
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers when a tag like v1.2.3 is pushed
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Version from Tag
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "RELEASE_VERSION=$TAG_VERSION-SNAPSHOT" >> $GITHUB_ENV
+
+      - name: Update build.sbt Version
+        run: |
+          sed -i 's|ThisBuild / version := .*|ThisBuild / version := sys.env.getOrElse("RELEASE_VERSION", "'"${RELEASE_VERSION}"'-SNAPSHOT")|' version.sbt
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          commit-message: 'chore(release): bump version to ${{ env.RELEASE_VERSION }}'
+          signoff: 'true'
+          branch: update-version-snapshot
+          delete-branch: 'true'
+          sign-commits: 'true'
+          title: "Update Version to ${{ env.RELEASE_VERSION }}"
+          body: |
+            We are updating the current version to ${{ env.RELEASE_VERSION }}-SNAPSHOT as we have released version ${{ env.RELEASE_VERSION }}.  
+            This ensures that future development continues with the next snapshot version.
+          labels:
+            - version
+            - auto-merge
+          base: main
