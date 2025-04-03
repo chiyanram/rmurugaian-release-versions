@@ -40,6 +40,7 @@ jobs:
           title: "Update ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}"
           body: "This PR updates the version of `${{ github.event.inputs.project_name }}` in `${{ github.event.inputs.environment }}` to `${{ github.event.inputs.new_version }}`."
           delete-branch: 'true'
+          base: main
           branch: ${{ env.BRANCH_NAME }}
           labels: |
             report
