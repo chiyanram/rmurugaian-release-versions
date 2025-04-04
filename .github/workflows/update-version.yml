@@ -24,12 +24,11 @@ jobs:
           BRANCH_NAME="update-${{ github.event.inputs.project_name }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.new_version }}"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Update version in JSON file
-        run: |
-          jq --arg project "${{ github.event.inputs.project_name }}" \
-             --arg env "${{ github.event.inputs.environment }}" \
-             --arg version "${{ github.event.inputs.new_version }}" \
-             '.[$project][$env] = $version' versions.json > tmp.json && mv tmp.json versions.json
+      - name: Update version in YAML file
+        uses: mikefarah/yq@v4.45.1
+        with:
+          cmd: yq -i '.${{ github.event.inputs.project_name }}.${{ github.event.inputs.environment }} = "${{ github.event.inputs.new_version }}"' versions.yaml
+      
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -42,5 +41,6 @@ jobs:
           base: main
           branch: ${{ env.BRANCH_NAME }}
           labels: |
-            report
-            automated pr
+            release
+            ${{ github.event.inputs.project_name }}
+            version

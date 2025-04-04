@@ -1,0 +1,9 @@
+projectA:
+  stage: "2.0.0"
+  prod: "1.1.0"
+projectB:
+  stage: "2.5.1"
+  prod: "2.4.3"
+projectC:
+  stage: "3.0.0"
+  prod: "2.9.9"
