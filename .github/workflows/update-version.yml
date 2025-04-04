@@ -28,15 +28,19 @@ jobs:
         uses: mikefarah/yq@v4.45.1
         with:
           cmd: yq -i '.${{ github.event.inputs.project_name }}.${{ github.event.inputs.environment }} = "${{ github.event.inputs.new_version }}"' versions.yaml
-      
+
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: '${{ secrets.GH_TOKEN }}'
-          commit-message: Updated ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}
-          title: "Update ${{ github.event.inputs.project_name }} (${{ github.event.inputs.environment }}) to version ${{ github.event.inputs.new_version }}"
-          body: "This PR updates the version of `${{ github.event.inputs.project_name }}` in `${{ github.event.inputs.environment }}` to `${{ github.event.inputs.new_version }}`."
+          commit-message: |
+            chore(release): bump ${{ github.event.inputs.project_name }} ${{ github.event.inputs.environment }} to ${{ github.event.inputs.new_version }}
+          title: "chore(release): bump ${{ github.event.inputs.project_name }} ${{ github.event.inputs.environment }} to ${{ github.event.inputs.new_version }}"
+          body: |
+            Bumping the version of `${{ github.event.inputs.project_name }}` in `${{ github.event.inputs.environment }}` to `${{ github.event.inputs.new_version }}`.
+
+            This update ensures that the latest version is correctly tracked in the versioning repository as part of the release process.
           delete-branch: 'true'
           base: main
           branch: ${{ env.BRANCH_NAME }}
